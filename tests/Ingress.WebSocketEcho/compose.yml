@@ -1,0 +1,31 @@
+services:
+  pilot-web-server:
+    image: mcr.microsoft.com/dotnet/aspnet:8.0
+    entrypoint: ["dotnet", "/test/Ingress.WebSocketEcho.dll"]
+    environment:
+      ASPNETCORE_URLS: "http://+:80;http://+:5200;http://+:5545"
+    volumes:
+      - ./publish:/test:ro
+    networks:
+      default:
+        aliases: [pilot-server, pilot-web-myadmin]
+  broken:
+    image: pilot-local-ingress:1
+    entrypoint: [/docker-entrypoint.sh]
+    command: [nginx, -g, "daemon off;"]
+    volumes:
+      - ./before.conf:/etc/nginx/nginx.conf:ro
+  fixed:
+    image: pilot-local-ingress:1
+    cap_add: [NET_ADMIN]
+    volumes:
+      - ../../ingress/instance-nginx.conf:/etc/nginx/nginx.conf:ro
+  outer:
+    image: pilot-local-ingress:1
+    entrypoint: [/docker-entrypoint.sh]
+    command: [nginx, -g, "daemon off;"]
+    volumes:
+      - ./outer.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "127.0.0.1:28080:8080"
+      - "127.0.0.1:28081:8081"

@@ -1,0 +1,78 @@
+services:
+  pilot-server:
+    image: ${PILOT_SERVER_IMAGE}
+    hostname: pilot-server
+    restart: unless-stopped
+    profiles: ["ice-dev", "bim-dev"]
+    mem_limit: ${PILOT_SERVER_MEMORY}
+    networks: [pilot-internal]
+    volumes:
+      - { type: bind, source: "${PILOT_INSTANCE_DIR}/aspnet/pilot-server", target: /root/.aspnet }
+      - { type: bind, source: "${PILOT_INSTANCE_DIR}/logs/pilot-server", target: /App/logs }
+      - { type: bind, source: "${PILOT_INSTANCE_DIR}/server/settings", target: /usr/share/ascon/pilot-server/settings }
+      - { type: bind, source: "${PILOT_INSTANCE_DIR}/databases", target: /usr/share/ascon/databases }
+      - { type: bind, source: "${PILOT_INSTANCE_DIR}/license", target: "/usr/share/ASCON/Pilot Server/License", read_only: true }
+    entrypoint: [/App/Ascon.Pilot.Daemon, /usr/share/ascon/pilot-server/settings/settings.xml]
+
+  pilot-bim-server:
+    image: ${PILOT_BIM_SERVER_IMAGE}
+    hostname: pilot-bim-server
+    restart: unless-stopped
+    profiles: ["bim-dev"]
+    mem_limit: ${PILOT_BIM_MEMORY}
+    networks: [pilot-internal]
+    volumes:
+      - { type: bind, source: "${PILOT_INSTANCE_DIR}/aspnet/pilot-bim-server", target: /root/.aspnet }
+      - { type: bind, source: "${PILOT_INSTANCE_DIR}/logs/pilot-bim-server", target: /App/logs }
+      - { type: bind, source: "${PILOT_INSTANCE_DIR}/bim", target: /usr/share/ASCON/Pilot-BIM-Server }
+    depends_on: [pilot-server]
+
+  pilot-web-server:
+    image: ${PILOT_WEB_SERVER_IMAGE}
+    hostname: pilot-web-server
+    restart: unless-stopped
+    profiles: ["ice-dev", "bim-dev"]
+    mem_limit: ${PILOT_WEB_MEMORY}
+    networks: [pilot-internal]
+    environment:
+      "PilotServer:Database": ${PILOT_DATABASE_NAME}
+      "PilotServer:Url": http://pilot-server:5545
+      "AuthSettings:AuthenticationMode": ${PILOT_AUTH_MODE}
+    depends_on: [pilot-server]
+
+  pilot-web-myadmin:
+    image: ${PILOT_WEB_MYADMIN_IMAGE}
+    hostname: pilot-web-myadmin
+    restart: unless-stopped
+    profiles: ["ice-dev", "bim-dev"]
+    mem_limit: ${PILOT_ADMIN_MEMORY}
+    networks: [pilot-internal]
+    environment:
+      "PilotServer:Url": http://pilot-server:5545
+    depends_on: [pilot-server]
+
+  pilot-ingress:
+    image: ${PILOT_INGRESS_IMAGE}
+    hostname: pilot-ingress
+    restart: unless-stopped
+    profiles: ["ice-dev", "bim-dev"]
+    mem_limit: 64m
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cap_add: [NET_ADMIN]
+    tmpfs: [/var/cache/nginx, /var/run]
+    networks: [pilot-internal]
+    ports:
+      - "127.0.0.1:${PILOT_SERVER_PORT}:5545"
+      - "127.0.0.1:${PILOT_WEB_PORT}:80"
+      - "127.0.0.1:${PILOT_ADMIN_PORT}:5200"
+    volumes:
+      - { type: bind, source: "${PILOT_INSTANCE_DIR}/ingress/nginx.conf", target: /etc/nginx/nginx.conf, read_only: true }
+    depends_on: [pilot-server, pilot-web-server, pilot-web-myadmin]
+
+networks:
+  pilot-internal:
+    driver: bridge
+    internal: false
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "true"

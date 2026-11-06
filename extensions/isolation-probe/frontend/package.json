@@ -1,0 +1,17 @@
+{
+  "name": "pilot-environment-isolation-probe",
+  "private": true,
+  "scripts": {
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "@pilotdev/pilot-web-sdk": "26.19.0",
+    "rxjs": "7.8.1"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5",
+    "webpack": "5.91.0",
+    "webpack-cli": "5.1.4",
+    "ts-loader": "9.5.1"
+  }
+}

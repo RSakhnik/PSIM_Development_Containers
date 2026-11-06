@@ -1,0 +1,25 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PilotEnv.Api", "src\PilotEnv.Api\PilotEnv.Api.csproj", "{43DBD23F-37BB-4A3D-9C11-5954061AA93D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PilotEnv.Api.Tests", "tests\PilotEnv.Api.Tests\PilotEnv.Api.Tests.csproj", "{441E94F2-36AE-4E2A-87AF-B66ABFBF64BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{43DBD23F-37BB-4A3D-9C11-5954061AA93D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43DBD23F-37BB-4A3D-9C11-5954061AA93D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43DBD23F-37BB-4A3D-9C11-5954061AA93D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43DBD23F-37BB-4A3D-9C11-5954061AA93D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{441E94F2-36AE-4E2A-87AF-B66ABFBF64BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{441E94F2-36AE-4E2A-87AF-B66ABFBF64BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{441E94F2-36AE-4E2A-87AF-B66ABFBF64BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{441E94F2-36AE-4E2A-87AF-B66ABFBF64BC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

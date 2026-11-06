@@ -1,0 +1,399 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Pilot Environment API",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://360pilot.ru:17443"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    },
+    "schemas": {
+      "Operation": {
+        "type": "object",
+        "required": [
+          "operationId",
+          "state"
+        ],
+        "properties": {
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "OperationSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "environmentName": {
+            "type": "string",
+            "nullable": true
+          },
+          "component": {
+            "type": "string",
+            "nullable": true
+          },
+          "startedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "EnvironmentStatus": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "activeOperationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastOperation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OperationSummary"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1/platform": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Installed components, contracts, capabilities and update state"
+          },
+          "401": {
+            "description": "Authentication required"
+          }
+        }
+      }
+    },
+    "/api/v1/session": {
+      "post": {
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Browser session created"
+          },
+          "401": {
+            "description": "Invalid token"
+          }
+        }
+      }
+    },
+    "/api/v1/capacity": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Current admission capacity"
+          }
+        }
+      }
+    },
+    "/api/v1/environments": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Environment list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EnvironmentStatus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "responses": {
+          "202": {
+            "description": "Create operation queued"
+          },
+          "409": {
+            "description": "Capacity unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/environments/{name}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Environment status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvironmentStatus"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "delete": {
+        "responses": {
+          "202": {
+            "description": "Delete queued"
+          },
+          "400": {
+            "description": "Exact confirmName is required"
+          }
+        }
+      }
+    },
+    "/api/v1/environments/{name}/start": {
+      "post": {
+        "responses": {
+          "202": {
+            "description": "Start queued"
+          }
+        }
+      }
+    },
+    "/api/v1/environments/{name}/stop": {
+      "post": {
+        "responses": {
+          "202": {
+            "description": "Stop queued"
+          }
+        }
+      }
+    },
+    "/api/v1/environments/{name}/components/{component}/restart": {
+      "post": {
+        "responses": {
+          "202": {
+            "description": "Component restart queued"
+          }
+        }
+      }
+    },
+    "/api/v1/environments/{name}/recreate": {
+      "post": {
+        "responses": {
+          "202": {
+            "description": "Destructive recreation queued"
+          }
+        }
+      }
+    },
+    "/api/v1/environments/{name}/components/{component}/logs": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Component logs"
+          }
+        }
+      }
+    },
+    "/api/v1/operations/{id}": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Operation state"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      }
+    },
+    "/api/v1/releases/refresh": {
+      "post": {
+        "responses": {
+          "202": {
+            "description": "Release validation queued"
+          }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Process is alive"
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Docker is reachable"
+          },
+          "503": {
+            "description": "Host is not ready"
+          }
+        }
+      }
+    },
+    "/api/v1/operations": {
+      "get": {
+        "summary": "Общий журнал операций",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "environmentName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "create",
+                "start",
+                "stop",
+                "restart",
+                "recreate",
+                "delete",
+                "refresh-release"
+              ]
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "queued",
+                "running",
+                "succeeded",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Страница операций",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "items"
+                  ],
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/OperationSummary"
+                      }
+                    },
+                    "nextCursor": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Неверный фильтр или курсор"
+          },
+          "401": {
+            "description": "Требуется авторизация"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ПСИМ — Изолированные среды</title>
+    <link rel="stylesheet" href="__ASSETS__/styles.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow">ПСИМ РАЗРАБОТКА</p>
+          <h1>Изолированные среды</h1>
+        </div>
+        <button id="logout" class="secondary hidden">Выйти</button>
+      </header>
+      <section id="login-card" class="card login">
+        <h2>Доступ к панели</h2>
+        <form id="login-form">
+          <label
+            >Токен доступа<input
+              id="token"
+              type="password"
+              autocomplete="current-password"
+              required /></label
+          ><button type="submit" class="blue">Войти</button>
+        </form>
+        <p id="login-error" class="error" role="alert"></p>
+      </section>
+      <div id="dashboard" class="hidden">
+        <div id="platform-notice" class="notice hidden" role="status"></div>
+        <div id="connection" class="notice hidden" role="status">
+          <span></span
+          ><button id="retry-connection" class="secondary">Повторить</button>
+        </div>
+        <section aria-labelledby="environments-title">
+          <div class="section-heading">
+            <div>
+              <h2 id="environments-title">
+                Стенды <span id="environment-count" class="count">—</span>
+              </h2>
+              <p id="updated-at" class="muted"></p>
+            </div>
+            <button id="refresh" class="secondary">Обновить</button>
+          </div>
+          <div id="loading" aria-live="polite">
+            <p>Загрузка стендов…</p>
+            <div class="card skeleton"></div>
+            <div class="card skeleton"></div>
+          </div>
+          <div id="environments" class="environment-list"></div>
+          <p id="empty" class="empty hidden">Стенды пока не созданы.</p>
+        </section>
+        <section class="card create-card" aria-labelledby="create-title">
+          <h2 id="create-title">Создать стенд</h2>
+          <form id="create-form" novalidate>
+            <label
+              >Имя среды<input
+                id="environment-name"
+                aria-label="Имя среды"
+                maxlength="40"
+                required
+                aria-describedby="name-error" /><span
+                id="name-error"
+                class="field-error"
+              ></span></label
+            ><label
+              >Владелец или команда<input
+                id="owner"
+                maxlength="80"
+                required /></label
+            ><label
+              > <span>Описание <span class="muted">(необязательно)</span></span
+              ><input id="description" maxlength="500" /></label
+            ><button id="create-button" type="submit" class="green">
+              Создать и запустить
+            </button>
+          </form>
+          <div
+            id="create-feedback"
+            class="operation-feedback"
+            aria-live="polite"
+          ></div>
+          <div id="create-blockers" class="error"></div>
+        </section>
+        <section class="card journal" aria-labelledby="journal-title">
+          <div class="section-heading">
+            <h2 id="journal-title">Журнал операций</h2>
+            <button id="journal-refresh" class="secondary">
+              Обновить журнал
+            </button>
+          </div>
+          <p id="journal-unavailable" class="hidden">
+            Журнал недоступен. Обновите управляющий сервис
+          </p>
+          <div id="journal-content">
+            <form id="journal-filters" class="filters">
+              <label
+                >Среда<input
+                  id="filter-environment"
+                  placeholder="Все среды" /></label
+              ><label
+                >Действие<select id="filter-kind">
+                  <option value="">Все действия</option>
+                </select></label
+              ><label
+                >Состояние<select id="filter-state">
+                  <option value="">Все</option>
+                  <option value="active">Активные</option>
+                  <option value="queued">В очереди</option>
+                  <option value="running">Выполняется</option>
+                  <option value="succeeded">Завершено</option>
+                  <option value="failed">Ошибка</option>
+                </select></label
+              ><button class="secondary" type="submit">Применить</button>
+            </form>
+            <p id="journal-error" class="error" role="status"></p>
+            <button id="journal-new" class="blue hidden">Новые операции</button>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Время</th>
+                    <th>Среда</th>
+                    <th>Действие</th>
+                    <th>Компонент</th>
+                    <th>Состояние</th>
+                    <th>Длительность</th>
+                    <th>Подробности</th>
+                  </tr>
+                </thead>
+                <tbody id="journal-rows"></tbody>
+              </table>
+            </div>
+            <p id="journal-empty" class="empty hidden">Операций пока нет.</p>
+            <button id="journal-more" class="secondary hidden">
+              Показать ещё
+            </button>
+          </div>
+        </section>
+        <section aria-labelledby="capacity-title">
+          <h2 id="capacity-title">Ресурсы сервера</h2>
+          <p id="capacity-error" class="error"></p>
+          <div class="capacity-grid">
+            <article class="card metric">
+              <span>Можно запустить</span><strong id="can-start">—</strong>
+            </article>
+            <article class="card metric">
+              <span>Доступно стендов</span><strong id="slots">—</strong>
+            </article>
+            <article class="card metric">
+              <span>Память Docker: занято / всего</span
+              ><strong id="memory">—</strong>
+            </article>
+            <article class="card metric">
+              <span>Свободно на диске</span><strong id="disk">—</strong>
+            </article>
+            <article class="card metric">
+              <span>Свободные пары портов</span
+              ><strong id="public-ports">—</strong>
+            </article>
+          </div>
+          <div id="blockers" class="notice hidden"></div>
+        </section>
+        <section class="card release-card">
+          <div class="section-heading">
+            <h2>Обновления Pilot</h2>
+            <button id="refresh-release" class="blue">
+              Проверить обновления Pilot
+            </button>
+          </div>
+          <div
+            id="release-feedback"
+            class="operation-feedback"
+            aria-live="polite"
+          ></div>
+        </section>
+        <details id="about">
+          <summary>О системе</summary>
+          <p id="platform-builds"></p>
+        </details>
+      </div>
+      <div id="toast" class="toast hidden" role="status"></div>
+      <dialog id="confirm-dialog">
+        <form method="dialog">
+          <h2 id="confirm-title"></h2>
+          <p id="confirm-description"></p>
+          <label id="confirm-name-label" class="hidden"
+            >Имя среды<input id="confirm-name" autocomplete="off"
+          /></label>
+          <div class="dialog-actions">
+            <button id="confirm-cancel" value="cancel" class="secondary">
+              Отмена</button
+            ><button id="confirm-submit" value="confirm">Подтвердить</button>
+          </div>
+        </form>
+      </dialog>
+    </main>
+    <a class="help-bubble" href="__ASSETS__/help.pdf" target="_blank" rel="noopener" aria-label="Открыть справку в новой вкладке" title="Справка">?</a>
+    <script src="__ASSETS__/app.js" type="module"></script>
+  </body>
+</html>
